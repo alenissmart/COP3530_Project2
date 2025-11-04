@@ -1,0 +1,5 @@
+Metric,Trie,Hash Table
+Build Time (ms),465,104
+Avg Lookup Time (microseconds),3.251,0.346
+Memory Usage (MB),0,0
+Words Loaded,370105,370105

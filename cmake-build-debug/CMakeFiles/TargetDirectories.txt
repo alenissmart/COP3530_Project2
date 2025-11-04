@@ -1,0 +1,3 @@
+C:/Users/nick0/Downloads/COP3530_Project2-main/COP3530_Project2-main/cmake-build-debug/CMakeFiles/COP3530_Project2_main.dir
+C:/Users/nick0/Downloads/COP3530_Project2-main/COP3530_Project2-main/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/nick0/Downloads/COP3530_Project2-main/COP3530_Project2-main/cmake-build-debug/CMakeFiles/rebuild_cache.dir

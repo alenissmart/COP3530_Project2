@@ -1,0 +1,42 @@
+============================================================
+    TRIE vs HASH TABLE - PERFORMANCE ANALYSIS REPORT
+============================================================
+Team: Nonchalant
+Members: Nicholas Parmigiano, Alen Wu, Sebastien Laguerre
+============================================================
+
+DATASET INFORMATION:
+------------------------------------------------------------
+Total words loaded: 370105
+
+BUILD PERFORMANCE:
+------------------------------------------------------------
+Trie build time:       465 ms
+Hash Table build time: 104 ms
+Winner: Hash Table (4.47x faster)
+
+LOOKUP PERFORMANCE (1000 random queries):
+------------------------------------------------------------
+Trie average:       3.251 μs per query
+Hash Table average: 0.346 μs per query
+Winner: Hash Table (9.40x faster)
+
+MEMORY USAGE (Approximate):
+------------------------------------------------------------
+Trie:       ~0 MB
+Hash Table: ~0 MB
+Winner: Hash Table (nan% less memory)
+
+ANALYSIS & CONCLUSIONS:
+------------------------------------------------------------
+- Hash Tables typically provide faster average-case lookups (O(1))
+- Tries excel at prefix-based queries and autocomplete
+- Hash Tables generally use less memory for simple word storage
+- Tries provide better worst-case guarantees
+
+RECOMMENDATION:
+------------------------------------------------------------
+For pure word lookup: Hash Table
+For autocomplete/prefix search: Trie
+For balanced use case: Consider hybrid approach
+============================================================

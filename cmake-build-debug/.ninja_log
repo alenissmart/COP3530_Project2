@@ -1,0 +1,8 @@
+# ninja log v5
+0	525	7839250541383983	CMakeFiles/COP3530_Project2_main.dir/hashtable.cpp.obj	b3b11ed6d6d0b8a4
+3	803	7839271543837725	CMakeFiles/COP3530_Project2_main.dir/main.cpp.obj	f366ad68dfe5542b
+1	255	7839274465977116	build.ninja	16892f0d76bd6343
+29	621	7839250542335000	CMakeFiles/COP3530_Project2_main.dir/trie.cpp.obj	d660d73f612061d7
+4	545	7839258104501557	CMakeFiles/COP3530_Project2_main.dir/generate_words.cpp.obj	50a68a58d9ea3a49
+804	1003	7839271545833302	COP3530_Project2_main.exe	a5eb1fc4e8bb146
+1	239	7839274465977116	build.ninja	16892f0d76bd6343
