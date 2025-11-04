@@ -19,23 +19,125 @@ private:
     bool trieBuilt;
     bool hashTableBuilt;
 
-    // Memory estimation
+    // Store results for CSV export
+    long long trieBuildTime;
+    long long hashBuildTime;
+    double trieAvgLookup;
+    double hashAvgLookup;
+    size_t trieMemory;
+    size_t hashMemory;
+
     size_t estimateTrieMemory() {
-        // Rough estimate: each node has overhead + map overhead
-        // This is approximate
         size_t nodeSize = sizeof(TrieNode);
-        size_t estimatedNodes = allWords.size() * 5; // average word length estimate
+        size_t estimatedNodes = allWords.size() * 5;
         return estimatedNodes * nodeSize;
     }
 
     size_t estimateHashTableMemory() {
         size_t bucketOverhead = hashTable->bucketCount() * sizeof(vector<string>);
-        size_t stringOverhead = hashTable->size() * 50; // rough string overhead
+        size_t stringOverhead = hashTable->size() * 50;
         return bucketOverhead + stringOverhead;
     }
 
+    void exportResultsToCSV() {
+        ofstream csvFile("benchmark_results.csv");
+        if (!csvFile.is_open()) {
+            cout << "Error: Could not create CSV file" << endl;
+            return;
+        }
+
+        csvFile << "Metric,Trie,Hash Table" << endl;
+        csvFile << "Build Time (ms)," << trieBuildTime << "," << hashBuildTime << endl;
+        csvFile << "Avg Lookup Time (microseconds)," << fixed << setprecision(3)
+                << trieAvgLookup << "," << hashAvgLookup << endl;
+        csvFile << "Memory Usage (MB)," << (trieMemory / 1024 / 1024) << ","
+                << (hashMemory / 1024 / 1024) << endl;
+        csvFile << "Words Loaded," << allWords.size() << "," << allWords.size() << endl;
+
+        csvFile.close();
+        cout << endl << "Results exported to 'benchmark_results.csv'" << endl;
+        cout << "You can open this file in Excel or Google Sheets to create graphs!" << endl;
+    }
+
+    void createTextReport() {
+        ofstream reportFile("performance_report.txt");
+        if (!reportFile.is_open()) {
+            cout << "Error: Could not create report file" << endl;
+            return;
+        }
+
+        reportFile << "============================================================" << endl;
+        reportFile << "    TRIE vs HASH TABLE - PERFORMANCE ANALYSIS REPORT" << endl;
+        reportFile << "============================================================" << endl;
+        reportFile << "Team: Nonchalant" << endl;
+        reportFile << "Members: Nicholas Parmigiano, Alen Wu, Sebastien Laguerre" << endl;
+        reportFile << "============================================================" << endl << endl;
+
+        reportFile << "DATASET INFORMATION:" << endl;
+        reportFile << "------------------------------------------------------------" << endl;
+        reportFile << "Total words loaded: " << allWords.size() << endl << endl;
+
+        reportFile << "BUILD PERFORMANCE:" << endl;
+        reportFile << "------------------------------------------------------------" << endl;
+        reportFile << "Trie build time:       " << trieBuildTime << " ms" << endl;
+        reportFile << "Hash Table build time: " << hashBuildTime << " ms" << endl;
+
+        if (trieBuildTime < hashBuildTime) {
+            double speedup = (double)hashBuildTime / trieBuildTime;
+            reportFile << "Winner: Trie (" << fixed << setprecision(2) << speedup << "x faster)" << endl << endl;
+        } else {
+            double speedup = (double)trieBuildTime / hashBuildTime;
+            reportFile << "Winner: Hash Table (" << fixed << setprecision(2) << speedup << "x faster)" << endl << endl;
+        }
+
+        reportFile << "LOOKUP PERFORMANCE (1000 random queries):" << endl;
+        reportFile << "------------------------------------------------------------" << endl;
+        reportFile << "Trie average:       " << fixed << setprecision(3) << trieAvgLookup << " μs per query" << endl;
+        reportFile << "Hash Table average: " << fixed << setprecision(3) << hashAvgLookup << " μs per query" << endl;
+
+        if (trieAvgLookup < hashAvgLookup) {
+            double speedup = hashAvgLookup / trieAvgLookup;
+            reportFile << "Winner: Trie (" << fixed << setprecision(2) << speedup << "x faster)" << endl << endl;
+        } else {
+            double speedup = trieAvgLookup / hashAvgLookup;
+            reportFile << "Winner: Hash Table (" << fixed << setprecision(2) << speedup << "x faster)" << endl << endl;
+        }
+
+        reportFile << "MEMORY USAGE (Approximate):" << endl;
+        reportFile << "------------------------------------------------------------" << endl;
+        reportFile << "Trie:       ~" << (trieMemory / 1024 / 1024) << " MB" << endl;
+        reportFile << "Hash Table: ~" << (hashMemory / 1024 / 1024) << " MB" << endl;
+
+        if (trieMemory < hashMemory) {
+            double savings = ((double)(hashMemory - trieMemory) / hashMemory) * 100;
+            reportFile << "Winner: Trie (" << fixed << setprecision(0) << savings << "% less memory)" << endl << endl;
+        } else {
+            double savings = ((double)(trieMemory - hashMemory) / trieMemory) * 100;
+            reportFile << "Winner: Hash Table (" << fixed << setprecision(0) << savings << "% less memory)" << endl << endl;
+        }
+
+        reportFile << "ANALYSIS & CONCLUSIONS:" << endl;
+        reportFile << "------------------------------------------------------------" << endl;
+        reportFile << "- Hash Tables typically provide faster average-case lookups (O(1))" << endl;
+        reportFile << "- Tries excel at prefix-based queries and autocomplete" << endl;
+        reportFile << "- Hash Tables generally use less memory for simple word storage" << endl;
+        reportFile << "- Tries provide better worst-case guarantees" << endl << endl;
+
+        reportFile << "RECOMMENDATION:" << endl;
+        reportFile << "------------------------------------------------------------" << endl;
+        reportFile << "For pure word lookup: Hash Table" << endl;
+        reportFile << "For autocomplete/prefix search: Trie" << endl;
+        reportFile << "For balanced use case: Consider hybrid approach" << endl;
+        reportFile << "============================================================" << endl;
+
+        reportFile.close();
+        cout << "Detailed report saved to 'performance_report.txt'" << endl;
+    }
+
 public:
-    BenchmarkSystem() : trie(nullptr), hashTable(nullptr), trieBuilt(false), hashTableBuilt(false) {}
+    BenchmarkSystem() : trie(nullptr), hashTable(nullptr), trieBuilt(false),
+                        hashTableBuilt(false), trieBuildTime(0), hashBuildTime(0),
+                        trieAvgLookup(0), hashAvgLookup(0), trieMemory(0), hashMemory(0) {}
 
     ~BenchmarkSystem() {
         if (trie) delete trie;
@@ -52,7 +154,6 @@ public:
         allWords.clear();
         string word;
         while (file >> word) {
-            // Convert to lowercase and remove special characters
             string cleanWord;
             for (char c : word) {
                 if (isalpha(c)) {
@@ -81,16 +182,15 @@ public:
         cout << "Building Trie with " << allWords.size() << " words..." << endl;
 
         auto start = high_resolution_clock::now();
-
         for (const string& word : allWords) {
             trie->insert(word);
         }
-
         auto end = high_resolution_clock::now();
         auto duration = duration_cast<milliseconds>(end - start);
 
+        trieBuildTime = duration.count();
         trieBuilt = true;
-        cout << "Trie built successfully in " << duration.count() << " ms" << endl;
+        cout << "Trie built successfully in " << trieBuildTime << " ms" << endl;
     }
 
     void buildHashTable() {
@@ -105,16 +205,15 @@ public:
         cout << "Building Hash Table with " << allWords.size() << " words..." << endl;
 
         auto start = high_resolution_clock::now();
-
         for (const string& word : allWords) {
             hashTable->insert(word);
         }
-
         auto end = high_resolution_clock::now();
         auto duration = duration_cast<milliseconds>(end - start);
 
+        hashBuildTime = duration.count();
         hashTableBuilt = true;
-        cout << "Hash Table built successfully in " << duration.count() << " ms" << endl;
+        cout << "Hash Table built successfully in " << hashBuildTime << " ms" << endl;
     }
 
     void searchWord() {
@@ -126,8 +225,6 @@ public:
         string word;
         cout << "Enter word to search: ";
         cin >> word;
-
-        // Convert to lowercase
         transform(word.begin(), word.end(), word.begin(), ::tolower);
 
         if (trieBuilt) {
@@ -161,7 +258,6 @@ public:
         cout << endl << "Running benchmark with " << NUM_QUERIES << " random queries..." << endl;
         cout << string(60, '=') << endl;
 
-        // Generate random query words
         random_device rd;
         mt19937 gen(rd());
         uniform_int_distribution<> dis(0, allWords.size() - 1);
@@ -189,6 +285,10 @@ public:
         auto hashEnd = high_resolution_clock::now();
         auto hashDuration = duration_cast<microseconds>(hashEnd - hashStart);
 
+        // Store results
+        trieAvgLookup = trieDuration.count() / (double)NUM_QUERIES;
+        hashAvgLookup = hashDuration.count() / (double)NUM_QUERIES;
+
         // Display results
         cout << endl << "BENCHMARK RESULTS:" << endl;
         cout << string(60, '-') << endl;
@@ -200,8 +300,8 @@ public:
         cout << left << setw(30) << "Words found:" << setw(15) << trieFound << setw(15) << hashFound << endl;
         cout << left << setw(30) << "Total time (μs):" << setw(15) << trieDuration.count() << setw(15) << hashDuration.count() << endl;
         cout << left << setw(30) << "Avg time per query (μs):"
-             << setw(15) << fixed << setprecision(3) << (trieDuration.count() / (double)NUM_QUERIES)
-             << setw(15) << fixed << setprecision(3) << (hashDuration.count() / (double)NUM_QUERIES) << endl;
+             << setw(15) << fixed << setprecision(3) << trieAvgLookup
+             << setw(15) << fixed << setprecision(3) << hashAvgLookup << endl;
 
         cout << string(60, '-') << endl;
 
@@ -214,6 +314,10 @@ public:
         }
 
         cout << string(60, '=') << endl;
+
+        // Export results
+        exportResultsToCSV();
+        createTextReport();
     }
 
     void displayMemoryUsage() {
@@ -226,12 +330,12 @@ public:
         cout << string(60, '=') << endl;
 
         if (trieBuilt) {
-            size_t trieMemory = estimateTrieMemory();
+            trieMemory = estimateTrieMemory();
             cout << "Trie: ~" << (trieMemory / 1024) << " KB (~" << (trieMemory / 1024 / 1024) << " MB)" << endl;
         }
 
         if (hashTableBuilt) {
-            size_t hashMemory = estimateHashTableMemory();
+            hashMemory = estimateHashTableMemory();
             cout << "Hash Table: ~" << (hashMemory / 1024) << " KB (~" << (hashMemory / 1024 / 1024) << " MB)" << endl;
             cout << "  - Bucket count: " << hashTable->bucketCount() << endl;
             cout << "  - Stored words: " << hashTable->size() << endl;
