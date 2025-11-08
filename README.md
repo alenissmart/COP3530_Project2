@@ -6,7 +6,7 @@
 This program compares the two data structures, Tries and Hash Tables, on their efficiency for large-scale word lookups.
 
 ## Video Demo
-[(Video Demo)](https://youtu.be/qIv1igN7lDc)
+[![Video Demo](https://img.youtube.com/vi/qIv1igN7lDc/0.jpg)](https://youtu.be/qIv1igN7lDc)
 
 ## How to Compile the Program
 ### Use Makefile:
